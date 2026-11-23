@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Typecheck, lint, test, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    env:
+      APP_SECRET: ci-only-secret-value-0123456789abcdef
+      FILE_SIGNING_SECRET: ci-only-file-secret-0123456789abcdef
+      JOBS_TICK_SECRET: ci-jobs-secret
+      DATABASE_DRIVER: pglite
+      PGLITE_DATA_DIR: .data/pglite
+      AUTO_MIGRATE: 'false'
+      DEMO_MODE: 'true'
+      PAYMENTS_LIVE_ENABLED: 'false'
+      PAYMENT_PROVIDER: demo
+      OCR_PROVIDER: demo
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit, integration and security tests
+        run: npm test
+
+      - name: Prepare demo database (reference + synthetic data)
+        run: |
+          npm run db:reset
+          npm run db:demo
+
+      - name: Build
+        run: npm run build
+
+      - name: HTTP smoke test against the production build
+        run: npm run test:e2e
+
+      - name: Dependency audit (high and above)
+        run: npm audit --audit-level=high
