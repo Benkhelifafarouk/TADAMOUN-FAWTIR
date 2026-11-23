@@ -1,0 +1,54 @@
+{
+  "name": "tadamoun-fawtir",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A privacy-first Algerian solidarity platform for automated essential utility bill assistance and transparent donations.",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run tests/unit tests/integration tests/security",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:security": "vitest run tests/security",
+    "test:e2e": "node scripts/smoke.mjs",
+    "db:migrate": "tsx scripts/db.ts migrate",
+    "db:seed": "tsx scripts/db.ts seed",
+    "db:demo": "tsx scripts/seed-demo.ts",
+    "db:reset": "tsx scripts/db.ts reset",
+    "db:status": "tsx scripts/db.ts status",
+    "worker": "tsx scripts/worker.ts",
+    "verify": "npm run typecheck && npm run lint && npm test"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.6.0",
+    "dotenv": "^17.4.2",
+    "next": "^16.4.6",
+    "pdfjs-dist": "^6.5.438",
+    "pg": "^8.23.1",
+    "react": "^19.2.9",
+    "react-dom": "^19.2.9",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@types/node": "^24.19.2",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "autoprefixer": "^10.7.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "postcss": "^8.5.33",
+    "tailwindcss": "^3.4.19",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.73.0",
+    "vitest": "^5.1.1"
+  }
+}
