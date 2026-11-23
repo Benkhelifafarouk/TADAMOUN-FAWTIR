@@ -16,10 +16,10 @@ next-env.d.ts
 /storage/
 *.pglite
 
-# environment
+# environment � never commit a filled env file, but keep the template
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
 
 # test / tooling output
 coverage/
