@@ -32,6 +32,23 @@ export default tseslint.config(
     },
   },
   {
+    files: ['scripts/**/*.{ts,mjs,js}'],
+    languageOptions: {
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        fetch: 'readonly',
+        URL: 'readonly',
+        Buffer: 'readonly',
+      },
+    },
+    rules: {
+      'no-console': 'off',
+    },
+  },
+  {
     files: ['scripts/**/*.ts', 'tests/**/*.ts'],
     rules: {
       'no-console': 'off',
