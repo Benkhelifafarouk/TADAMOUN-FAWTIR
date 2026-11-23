@@ -13,7 +13,7 @@ next-env.d.ts
 
 # local data (PGlite database + private uploaded documents)
 .data/
-storage/
+/storage/
 *.pglite
 
 # environment
