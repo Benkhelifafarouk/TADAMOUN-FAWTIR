@@ -29,8 +29,8 @@ export async function notify(q: Queryable, input: NotificationInput): Promise<vo
 
   await q.query(
     `insert into notifications
-       (user_id, type, title_key, body_key, params, channel, status, failure_reason, dedupe_key)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       (user_id, type, title_key, body_key, params, channel, status, failure_reason, dedupe_key, sent_at)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
      on conflict (dedupe_key) do nothing`,
     [
       input.userId,
@@ -39,14 +39,16 @@ export async function notify(q: Queryable, input: NotificationInput): Promise<vo
       `notifications.events.${input.event}.body`,
       JSON.stringify(input.params ?? {}),
       channel,
-      channel === 'in_app' ? 'queued' : providerConfigured ? 'queued' : 'failed',
+      channel === 'in_app' ? 'sent' : providerConfigured ? 'queued' : 'failed',
       providerConfigured ? null : 'provider_not_configured',
       input.dedupeKey ?? null,
+      // An in-app notification is delivered as soon as it is persisted.
+      channel === 'in_app' ? new Date() : null,
     ],
   );
 }
 
-/** Job handler: in-app notifications are considered sent once persisted and queued. */
+/** Job handler: delivers any legacy queued in-app notifications. */
 export async function deliverQueuedNotifications(q: Queryable, limit = 100): Promise<number> {
   const rows = await q.query<{ id: string }>(
     `with due as (

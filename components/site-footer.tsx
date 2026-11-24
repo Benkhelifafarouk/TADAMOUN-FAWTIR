@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { env } from '@/lib/env';
 import { getDictionary, localePath, type Locale } from '@/lib/i18n';
 
 export function SiteFooter({ locale }: { locale: Locale }) {
@@ -11,9 +12,11 @@ export function SiteFooter({ locale }: { locale: Locale }) {
         <div className="md:col-span-2">
           <p className="text-sm font-bold text-ink-950">{dictionary.common.appName}</p>
           <p className="mt-2 max-w-md text-2xs leading-relaxed text-ink-500">{dictionary.meta.description}</p>
-          <p className="mt-4 max-w-md rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-2xs leading-relaxed text-amber-600">
-            {dictionary.home.demoWarning}
-          </p>
+          {env().demoMode ? (
+            <p className="mt-4 max-w-md rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-2xs leading-relaxed text-amber-600">
+              {dictionary.home.demoWarning}
+            </p>
+          ) : null}
         </div>
         <div>
           <p className="mb-3 text-2xs font-bold uppercase tracking-wide text-ink-400">{dictionary.nav.about}</p>

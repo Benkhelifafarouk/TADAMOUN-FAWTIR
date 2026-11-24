@@ -73,7 +73,7 @@ export function AppShell({
         </aside>
 
         <main id="main" className="min-w-0 flex-1">
-          <nav aria-label={title} className="mb-4 flex gap-1 overflow-x-auto pb-1 lg:hidden">
+          <nav aria-label={title} className="mb-4 flex flex-wrap gap-1 pb-1 lg:hidden">
             {nav.map((item) => (
               <Link
                 key={item.href}

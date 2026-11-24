@@ -43,7 +43,7 @@ const env = {
   FILE_SIGNING_SECRET: 'smoke-file-secret-value-0123456789',
   JOBS_TICK_SECRET: 'smoke-jobs-secret',
   DATABASE_DRIVER: 'pglite',
-  PGLITE_DATA_DIR: '.data/pglite',
+  PGLITE_DATA_DIR: process.env.SMOKE_PGLITE_DIR ?? '.data/pglite',
   AUTO_MIGRATE: 'false',
   DEMO_MODE: 'false',
   PAYMENTS_LIVE_ENABLED: 'false',

@@ -39,11 +39,11 @@ export default async function AdminUsersPage({ params }: { params: Promise<{ loc
           <thead>
             <tr>
               <th>{dictionary.auth.fullName}</th>
-              <th>{dictionary.auth.email}</th>
-              <th>{t.role}</th>
+              <th className="hidden md:table-cell">{dictionary.auth.email}</th>
+              <th className="hidden md:table-cell">{t.role}</th>
               <th>{t.userStatus}</th>
-              <th>{dictionary.auth.phoneVerified}</th>
-              <th>{dictionary.common.date}</th>
+              <th className="hidden md:table-cell">{dictionary.auth.phoneVerified}</th>
+              <th className="hidden md:table-cell">{dictionary.common.date}</th>
               <th>{dictionary.common.actions}</th>
             </tr>
           </thead>
@@ -51,10 +51,10 @@ export default async function AdminUsersPage({ params }: { params: Promise<{ loc
             {users.map((row) => (
               <tr key={row.id}>
                 <td className="font-medium">{row.fullName}</td>
-                <td className="text-2xs" dir="ltr">
+                <td className="hidden text-2xs md:table-cell" dir="ltr">
                   {row.email}
                 </td>
-                <td>
+                <td className="hidden md:table-cell">
                   <div className="flex flex-wrap gap-1">
                     {row.roles.map((role) => (
                       <StatusBadge key={role} group="role" value={role} dictionary={dictionary} />
@@ -64,8 +64,8 @@ export default async function AdminUsersPage({ params }: { params: Promise<{ loc
                 <td>
                   <StatusBadge group="user" value={row.status} dictionary={dictionary} />
                 </td>
-                <td className="text-2xs">{row.phoneVerified ? '✓' : '—'}</td>
-                <td className="text-2xs text-ink-500">{formatDate(row.createdAt, locale)}</td>
+                <td className="hidden text-2xs md:table-cell">{row.phoneVerified ? '✓' : '—'}</td>
+                <td className="hidden text-2xs text-ink-500 md:table-cell">{formatDate(row.createdAt, locale)}</td>
                 <td>
                   <div className="min-w-[13rem]">
                     <ActionForm

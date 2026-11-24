@@ -42,7 +42,13 @@ export function FieldError({ name, dictionary }: { name: string; dictionary: Dic
   const state = useContext(FormStateContext);
   const key = state.fieldErrors?.[name];
   if (!key) return null;
-  return <p className="field-error">{resolve(dictionary, key)}</p>;
+  const message =
+    lookup(dictionary, `validation.${key}`) ??
+    lookup(dictionary, `auth.${key}`) ??
+    lookup(dictionary, `actionErrors.${key}`) ??
+    lookup(dictionary, key) ??
+    key;
+  return <p className="field-error">{message}</p>;
 }
 
 export interface ActionFormProps {
@@ -89,7 +95,7 @@ export function ActionForm({
           role="alert"
           className="mb-4 rounded-lg border border-clay-500/30 bg-clay-500/5 px-4 py-3 text-sm text-clay-600"
         >
-          {resolve(dictionary, message!)}
+          {lookup(dictionary, message!) ?? message}
         </div>
       ) : null}
 
@@ -98,7 +104,7 @@ export function ActionForm({
           role="status"
           className="mb-4 rounded-lg border border-brand-500/30 bg-brand-50 px-4 py-3 text-sm text-brand-800"
         >
-          {resolve(dictionary, message!)}
+          {lookup(dictionary, message!) ?? message}
           {state.data?.demoCode ? (
             <div className="mt-2">
               <p className="text-2xs font-semibold">{dictionary.auth.demoCode}</p>
@@ -129,12 +135,12 @@ export function ActionForm({
   );
 }
 
-function resolve(dictionary: Dictionary, key: string): string {
+function lookup(dictionary: Dictionary, key: string): string | null {
   const parts = key.split('.');
   let current: unknown = dictionary;
   for (const part of parts) {
-    if (!current || typeof current !== 'object') return key;
+    if (!current || typeof current !== 'object') return null;
     current = (current as Record<string, unknown>)[part];
   }
-  return typeof current === 'string' ? current : key;
+  return typeof current === 'string' ? current : null;
 }

@@ -8,7 +8,7 @@ import { getBillDetail } from '@/lib/bills/service';
 import { getDb } from '@/lib/db';
 import { requireUser } from '@/lib/auth/guards';
 import { uploadDocumentAction } from '@/lib/actions/beneficiary';
-import { getDictionary, localePath, type Locale } from '@/lib/i18n';
+import { getDictionary, localePath, type Dictionary, type Locale } from '@/lib/i18n';
 import { isLocale } from '@/lib/i18n/config';
 import { formatDate } from '@/lib/i18n/format';
 import { docLabel, nextActionLabel, reasonLabel } from '@/lib/i18n/labels';
@@ -121,11 +121,18 @@ export default async function BillDetailPage({
                 <h3 className="mt-4 text-2xs font-bold uppercase tracking-wide text-ink-400">{t.reasonsTitle}</h3>
                 <ul className="mt-2 space-y-1.5">
                   {bill.decision.reasons.map((reason, index) => (
-                    <li key={`${reason.code}-${index}`} className="flex gap-2 text-2xs leading-relaxed text-ink-600">
+                    <li key={`${reason.code}-${index}`} className="flex flex-wrap gap-2 text-2xs leading-relaxed text-ink-600">
                       <Badge tone={reason.severity === 'blocking' ? 'danger' : reason.severity === 'warning' ? 'warning' : 'info'}>
                         {dictionary.status.severity[reason.severity as 'info'] ?? reason.severity}
                       </Badge>
                       <span>{reasonLabel(dictionary, reason.code)}</span>
+                      {reason.code === 'AMOUNT_CAPPED' ? (
+                        <CapBreakdown
+                          params={reason.params as Record<string, unknown>}
+                          dictionary={dictionary}
+                          locale={locale}
+                        />
+                      ) : null}
                     </li>
                   ))}
                 </ul>
@@ -205,5 +212,30 @@ export default async function BillDetailPage({
         </Link>
       </div>
     </div>
+  );
+}
+
+
+function CapBreakdown({
+  params,
+  dictionary,
+  locale,
+}: {
+  params: Record<string, unknown>;
+  dictionary: Dictionary;
+  locale: Locale;
+}) {
+  const value = (key: string) => Number(params[key] ?? 0);
+  if (!Number.isFinite(value('billAmount')) || value('billAmount') <= 0) return null;
+  return (
+    <span className="mt-1 block basis-full ps-7 text-[10px] leading-relaxed text-ink-400">
+      {dictionary.beneficiary.billAmount}: <Money centimes={value('billAmount')} locale={locale} />
+      {' � '}
+      {dictionary.requests.eligibleLabel}: <Money centimes={value('eligible')} locale={locale} />
+      {' � '}
+      {dictionary.admin.policyLimit}: <Money centimes={value('limit')} locale={locale} />
+      {' � '}
+      {dictionary.admin.totalAllocated}: <Money centimes={value('committed')} locale={locale} />
+    </span>
   );
 }

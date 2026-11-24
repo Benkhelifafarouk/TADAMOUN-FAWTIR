@@ -31,6 +31,10 @@ export default async function SettingsPage({ params }: { params: Promise<{ local
       order by created_at desc limit 20`,
     [user.id],
   );
+  const latestConsent = new Map<string, boolean>();
+  for (const consent of consents) {
+    if (!latestConsent.has(consent.consent_type)) latestConsent.set(consent.consent_type, consent.granted);
+  }
   const appeals = await listAppealsForBeneficiary(user.id);
 
   return (
@@ -71,8 +75,20 @@ export default async function SettingsPage({ params }: { params: Promise<{ local
                 className="mt-2"
               >
                 <label className="flex items-start gap-2 text-2xs text-ink-600">
-                  <input type="checkbox" name="granted" defaultChecked className="mt-0.5" />
-                  <span>{type === 'terms' ? dictionary.auth.consentTerms : dictionary.auth.consentPrivacy}</span>
+                  <input
+                    type="checkbox"
+                    name="granted"
+                    defaultChecked={latestConsent.get(type) ?? false}
+                    className="mt-0.5"
+                  />
+                  <span>
+                    {type === 'terms' ? dictionary.auth.consentTerms : dictionary.auth.consentPrivacy}
+                    <span className="mt-1 block font-semibold text-ink-500">
+                      {latestConsent.get(type)
+                        ? dictionary.beneficiary.consentGranted
+                        : dictionary.beneficiary.consentWithdrawn}
+                    </span>
+                  </span>
                 </label>
               </ActionForm>
             </div>

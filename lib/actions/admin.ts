@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
-import { requireUserAction } from '@/lib/auth/guards';
+import { assertRecentMfa, requireUserAction } from '@/lib/auth/guards';
 import { recordSecurityEvent } from '@/lib/security/audit';
 import { notify } from '@/lib/notifications/service';
 import { adminPolicySchema, adminRuleVersionSchema, zodParse, formToObject, municipalitySchema, providerSchema, settingSchema } from '@/lib/validation/schemas';
@@ -15,6 +15,7 @@ export async function updateSettingAction(_prev: ActionState, formData: FormData
   try {
     const user = await requireUserAction();
     if (!user.roles.includes('admin')) return { ok: false, message: 'actionErrors.FORBIDDEN' };
+    assertRecentMfa(user);
     const db = await getDb();
     let value: unknown;
     try {
@@ -47,6 +48,7 @@ export async function addMunicipalityAction(_prev: ActionState, formData: FormDa
   try {
     const user = await requireUserAction();
     if (!user.roles.includes('admin')) return { ok: false, message: 'actionErrors.FORBIDDEN' };
+    assertRecentMfa(user);
     const db = await getDb();
     await db.query(
       `insert into municipalities (wilaya_id, code, name_ar, name_fr) values ($1, $2, $3, $4)`,
@@ -65,6 +67,7 @@ export async function addProviderAction(_prev: ActionState, formData: FormData):
   try {
     const user = await requireUserAction();
     if (!user.roles.includes('admin')) return { ok: false, message: 'actionErrors.FORBIDDEN' };
+    assertRecentMfa(user);
     const db = await getDb();
     await db.query(
       `insert into service_providers (category_id, code, name_ar, name_fr) values ($1, $2, $3, $4)`,
@@ -83,6 +86,7 @@ export async function savePolicyAction(_prev: ActionState, formData: FormData): 
   try {
     const user = await requireUserAction();
     if (!user.roles.includes('admin')) return { ok: false, message: 'actionErrors.FORBIDDEN' };
+    assertRecentMfa(user);
     const db = await getDb();
 
     await db.transaction(async (tx) => {
@@ -134,6 +138,7 @@ export async function createRuleVersionAction(_prev: ActionState, formData: Form
   try {
     const user = await requireUserAction();
     if (!user.roles.includes('admin')) return { ok: false, message: 'actionErrors.FORBIDDEN' };
+    assertRecentMfa(user);
     const db = await getDb();
 
     const active = await db.query<{ config: unknown }>(
@@ -197,6 +202,7 @@ export async function updateUserStatusAction(_prev: ActionState, formData: FormD
   try {
     const user = await requireUserAction();
     if (!user.roles.includes('admin')) return { ok: false, message: 'actionErrors.FORBIDDEN' };
+    assertRecentMfa(user);
     const targetId = String(formData.get('userId') ?? '');
     const status = String(formData.get('status') ?? '');
     const reason = String(formData.get('reason') ?? '').slice(0, 300);
@@ -225,6 +231,7 @@ export async function markFraudSignalAction(_prev: ActionState, formData: FormDa
   try {
     const user = await requireUserAction();
     if (!user.roles.includes('admin')) return { ok: false, message: 'actionErrors.FORBIDDEN' };
+    assertRecentMfa(user);
     const signalId = String(formData.get('signalId') ?? '');
     const status = String(formData.get('status') ?? '');
     if (!['reviewed', 'dismissed'].includes(status)) return { ok: false, message: 'actionErrors.VALIDATION' };
@@ -250,6 +257,7 @@ export async function markRequestPaidAction(_prev: ActionState, formData: FormDa
   try {
     const user = await requireUserAction();
     if (!user.roles.includes('admin')) return { ok: false, message: 'actionErrors.FORBIDDEN' };
+    assertRecentMfa(user);
     const requestId = String(formData.get('requestId') ?? '');
     const reference = String(formData.get('reference') ?? '').trim();
     if (!requestId || reference.length < 3) return { ok: false, message: 'actionErrors.REFERENCE_REQUIRED' };
@@ -306,6 +314,7 @@ export async function resolveTicketAction(_prev: ActionState, formData: FormData
   try {
     const user = await requireUserAction();
     if (!user.roles.includes('admin')) return { ok: false, message: 'actionErrors.FORBIDDEN' };
+    assertRecentMfa(user);
     const ticketId = String(formData.get('ticketId') ?? '');
     const status = String(formData.get('status') ?? '');
     if (!['in_progress', 'resolved', 'closed'].includes(status)) {

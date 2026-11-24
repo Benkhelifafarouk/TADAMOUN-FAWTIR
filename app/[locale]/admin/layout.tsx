@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/app-shell';
-import { requireRole } from '@/lib/auth/guards';
+import { Alert } from '@/components/ui';
+import Link from 'next/link';
+import { hasRecentMfa, requireRole } from '@/lib/auth/guards';
 import { getDictionary, type Locale } from '@/lib/i18n';
 import { isLocale } from '@/lib/i18n/config';
 
@@ -34,6 +36,16 @@ export default async function AdminLayout({
         { href: '/admin/settings', label: dictionary.admin.settingsTitle },
       ]}
     >
+      {user.roles.includes('admin') && !hasRecentMfa(user) ? (
+        <div className="mb-4">
+          <Alert tone="warning" title={dictionary.admin.mfaTitle}>
+            {dictionary.admin.mfaRequiredNote}{' '}
+            <Link className="link" href={`/${locale}/admin/settings`}>
+              {dictionary.admin.mfaVerify}
+            </Link>
+          </Alert>
+        </div>
+      ) : null}
       {children}
     </AppShell>
   );

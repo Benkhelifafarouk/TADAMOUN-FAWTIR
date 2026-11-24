@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation';
 import { ActionForm, FieldError } from '@/components/action-form';
 import { Alert, Badge, Card, PageHeader } from '@/components/ui';
 import { updateSettingAction } from '@/lib/actions/admin';
-import { confirmMfaAction, disableMfaAction, enrollMfaAction } from '@/lib/actions/admin-finance';
-import { requireRole } from '@/lib/auth/guards';
+import { confirmMfaAction, disableMfaAction, enrollMfaAction, verifyMfaAction } from '@/lib/actions/admin-finance';
+import { hasRecentMfa, requireRole } from '@/lib/auth/guards';
 import { listSettings } from '@/lib/data/admin';
 import { getDictionary, type Locale } from '@/lib/i18n';
 import { isLocale } from '@/lib/i18n/config';
@@ -22,6 +22,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ local
   const t = dictionary.admin;
   const user = await requireRole(locale, ['admin']);
   const settings = await listSettings();
+  const mfaReady = hasRecentMfa(user);
 
   return (
     <div className="space-y-6">
@@ -31,8 +32,8 @@ export default async function SettingsPage({ params }: { params: Promise<{ local
         <h2 className="text-base font-bold">{t.mfaTitle}</h2>
         <p className="mt-2 text-2xs text-ink-500">{t.mfaRequiredNote}</p>
         <p className="mt-2">
-          <Badge tone={user.mfaEnabled ? 'success' : 'warning'}>
-            {user.mfaEnabled ? t.mfaEnabled : t.mfaTitle}
+          <Badge tone={user.mfaEnabled && mfaReady ? 'success' : 'warning'}>
+            {user.mfaEnabled ? (mfaReady ? t.mfaEnabled : t.mfaVerify) : t.mfaTitle}
           </Badge>
         </p>
 
@@ -53,6 +54,28 @@ export default async function SettingsPage({ params }: { params: Promise<{ local
           </div>
         ) : (
           <div className="mt-4">
+            {!mfaReady ? (
+              <div className="mb-4 space-y-3">
+                <Alert tone="warning">{t.mfaRequiredNote}</Alert>
+                <ActionForm action={verifyMfaAction} dictionary={dictionary} submitLabel={dictionary.common.confirm}>
+                  <div>
+                    <label className="field-label" htmlFor="verify-code">
+                      {t.mfaCode}
+                    </label>
+                    <input
+                      id="verify-code"
+                      name="code"
+                      inputMode="numeric"
+                      pattern="[0-9]{6}"
+                      required
+                      className="field-input"
+                      dir="ltr"
+                    />
+                    <FieldError name="code" dictionary={dictionary} />
+                  </div>
+                </ActionForm>
+              </div>
+            ) : null}
             <ActionForm action={disableMfaAction} dictionary={dictionary} submitLabel={t.mfaDisable} submitVariant="danger">
               <div>
                 <label className="field-label" htmlFor="code">
@@ -68,6 +91,11 @@ export default async function SettingsPage({ params }: { params: Promise<{ local
 
       <Card>
         <h2 className="text-base font-bold">{t.settingsTitle}</h2>
+        {!mfaReady ? (
+          <div className="mt-3">
+            <Alert tone="warning">{t.mfaRequiredNote}</Alert>
+          </div>
+        ) : null}
         <ul className="mt-4 space-y-3">
           {settings.map((setting) => (
             <li key={setting.key} className="rounded-lg border border-sand-200 p-3">

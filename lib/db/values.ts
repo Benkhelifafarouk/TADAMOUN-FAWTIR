@@ -48,3 +48,25 @@ export function jsonObject<T = Record<string, unknown>>(value: unknown): T {
   }
   return {} as T;
 }
+
+/**
+ * Parses a JSONB value only when it actually looks like JSON.
+ *
+ * A JSON string scalar (e.g. "2026-11-draft") is returned by the driver as the
+ * bare text 2026-11-draft; calling JSON.parse on it throws. Object/array/scalar
+ * JSON values still parse normally, and a plain string is returned unchanged.
+ */
+export function parseJsonValue<T = unknown>(value: unknown): T {
+  if (typeof value !== 'string') return value as T;
+  const trimmed = value.trim();
+  if (trimmed.length === 0) return value as T;
+  const first = trimmed[0];
+  if (!['{', '[', '"', '-', 't', 'f', 'n'].includes(first) && !/^[0-9]/.test(first)) {
+    return value as T;
+  }
+  try {
+    return JSON.parse(trimmed) as T;
+  } catch {
+    return value as T;
+  }
+}

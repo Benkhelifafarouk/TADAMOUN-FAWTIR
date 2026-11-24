@@ -1,5 +1,5 @@
 import { getDb } from '@/lib/db';
-import { num } from '@/lib/db/values';
+import { num, parseJsonValue } from '@/lib/db/values';
 
 export interface AdminOverview {
   users: number;
@@ -480,7 +480,7 @@ export async function listSettings(): Promise<{ key: string; value: unknown; isP
   );
   return rows.map((row) => ({
     key: row.key,
-    value: typeof row.value === 'string' ? JSON.parse(row.value) : row.value,
+    value: parseJsonValue(row.value),
     isPublic: row.is_public,
     description: row.description,
   }));

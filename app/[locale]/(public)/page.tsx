@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Alert, Badge, ButtonLink, Card, Money, Progress, SectionTitle } from '@/components/ui';
 import { StatusBadge } from '@/components/status-badge';
 import { browsePublicRequests, getCategories, getPublicStats } from '@/lib/data/public';
+import { env } from '@/lib/env';
 import { getDictionary, localePath, type Locale } from '@/lib/i18n';
 import { isLocale } from '@/lib/i18n/config';
 import { notFound } from 'next/navigation';
@@ -192,7 +193,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </ButtonLink>
           </div>
         </div>
-        <p className="mt-6 text-center text-2xs text-ink-400">{t.demoWarning}</p>
+        {env().demoMode ? <p className="mt-6 text-center text-2xs text-ink-400">{t.demoWarning}</p> : null}
       </section>
     </>
   );

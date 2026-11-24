@@ -40,7 +40,52 @@ export default async function BillsPage({ params }: { params: Promise<{ locale: 
           action={<ButtonLink href={localePath(locale, '/app/bills/new')}>{dictionary.nav.newBill}</ButtonLink>}
         />
       ) : (
-        <Card className="overflow-x-auto p-0">
+        <>
+          <ul className="space-y-3 md:hidden">
+            {bills.map((bill) => (
+              <li key={bill.id}>
+                <Card>
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-mono text-2xs text-ink-400">{bill.billReference ?? bill.id.slice(0, 8)}</p>
+                      <p className="mt-1 text-sm font-bold text-ink-900">
+                        {locale === 'ar' ? bill.categoryNameAr : bill.categoryNameFr}
+                      </p>
+                      <p className="mt-0.5 text-2xs text-ink-500">
+                        {locale === 'ar' ? bill.providerNameAr : bill.providerNameFr} � {formatDate(bill.createdAt, locale)}
+                      </p>
+                    </div>
+                    <StatusBadge group="bill" value={bill.status} dictionary={dictionary} />
+                  </div>
+                  <dl className="mt-3 grid grid-cols-2 gap-2 border-t border-sand-200 pt-3 text-2xs">
+                    <div>
+                      <dt className="text-ink-400">{t.billAmount}</dt>
+                      <dd className="mt-0.5 font-semibold text-ink-900">
+                        {bill.totalCentimes === null ? '�' : <Money centimes={bill.totalCentimes} locale={locale} />}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-ink-400">{t.eligibleAmount}</dt>
+                      <dd className="mt-0.5 font-semibold text-brand-800">
+                        {bill.eligibleCentimes === null ? '�' : <Money centimes={bill.eligibleCentimes} locale={locale} />}
+                      </dd>
+                    </div>
+                  </dl>
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    {bill.decision ? (
+                      <StatusBadge group="decision" value={bill.decision} dictionary={dictionary} />
+                    ) : (
+                      <span />
+                    )}
+                    <Link className="link text-2xs" href={localePath(locale, `/app/bills/${bill.id}`)}>
+                      {dictionary.common.details}
+                    </Link>
+                  </div>
+                </Card>
+              </li>
+            ))}
+          </ul>
+          <Card className="hidden overflow-x-auto p-0 md:block">
           <table className="table-app">
             <thead>
               <tr>
@@ -89,7 +134,8 @@ export default async function BillsPage({ params }: { params: Promise<{ locale: 
               ))}
             </tbody>
           </table>
-        </Card>
+          </Card>
+        </>
       )}
     </div>
   );

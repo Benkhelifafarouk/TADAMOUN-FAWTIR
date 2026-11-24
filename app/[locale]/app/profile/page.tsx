@@ -115,7 +115,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ locale
             <FieldError name="housingStatus" dictionary={dictionary} />
           </Field>
 
-          <Alert tone="warning">{dictionary.transparency.demoText}</Alert>
         </ActionForm>
       </Card>
     </div>
