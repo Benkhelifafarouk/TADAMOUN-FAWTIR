@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ActionForm, FieldError } from '@/components/action-form';
-import { Alert, Card, DemoNotice, PageHeader } from '@/components/ui';
+import { Alert, Card, PageHeader } from '@/components/ui';
 import { ProviderSelect } from '@/components/provider-select';
 import { uploadBillAction } from '@/lib/actions/beneficiary';
 import { requireUser } from '@/lib/auth/guards';
@@ -86,7 +86,6 @@ export default async function NewBillPage({ params }: { params: Promise<{ locale
             <FieldError name="file" dictionary={dictionary} />
           </div>
 
-          <DemoNotice text={dictionary.transparency.demoText} />
         </ActionForm>
       </Card>
 
